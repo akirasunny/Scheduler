@@ -31,8 +31,8 @@
 
       <!-- Jumbotron Title -->
       <div class="jumbotron">
-        <h1 class="text-center">Keep Every Train On Track</h1>
-        <h3 class="text-center">Secure your schedule</h3>
+        <h3 class="text-center">Keep Every Trian On Track</h3>
+        <h1 class="text-center">Time Now: <span id="currenttime"></span></h1>
       </div>
 
       <div class="row">
@@ -46,6 +46,7 @@
               	<th>Frequency (min)</th>
               	<th>Next Arrival</th>
               	<th>Minutes Away</th>
+              	<th>Edit</th>
               </tr>
 			  </table>
             </div>
@@ -66,19 +67,19 @@
             <div class="panel-body">
               <form>
                 <div class="form-group">
-                  <label for="bidder-name">Train Name</label>
+                  <label for="train-name ">Train Name</label>
                   <input class="form-control" id="train-name" type="text">
                 </div>
                 <div class="form-group">
-                  <label for="bidder-price">Destination</label>
+                  <label for="destination">Destination</label>
                   <input class="form-control" id="destination" type="text">
                 </div>
                 <div class="form-group">
-                  <label for="bidder-price">First Train Time (HH:mm - military time)</label>
+                  <label for="first-train">First Train Time (HH:mm - military time)</label>
                   <input class="form-control" id="first-train" type="text">
                 </div>
                 <div class="form-group">
-                  <label for="bidder-price">Frequency (min)</label>
+                  <label for="frequency">Frequency (min)</label>
                   <input class="form-control" id="frequency" type="number">
                 </div>
                 <button class="btn btn-primary" id="submit" type="submit">Submit</button>

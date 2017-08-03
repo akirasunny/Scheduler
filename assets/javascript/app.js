@@ -13,9 +13,60 @@ var database = firebase.database();
 
 // globals
 var num = "0123456789"
+var interval;
 
 // functions
 
+// clock function from W3Schools
+function startTime() {
+    var today = new Date();
+    var h = today.getHours();
+    var m = today.getMinutes();
+    var s = today.getSeconds();
+    m = checkTime(m);
+    s = checkTime(s);
+    $("#currenttime").text(h + ":" + m + ":" + s);
+    var t = setTimeout(startTime, 500);
+}
+
+function checkTime(i) {
+    if (i < 10) {
+    	i = "0" + i
+    }
+    return i;
+}
+
+// timer for refreshing
+function timerrun() {
+	interval = setInterval(refresh, 1000 * 60);
+}
+
+function refresh() {
+	$(".trains").remove();
+	database.ref().on("child_added", function(child, preChildKey) {
+		var key = child.key;
+		var child = child.val();
+		var name = child.name;
+		var dest = child.destination;
+		var freq = child.frequency;
+		var first = child.first;
+		var array = minutesaway(first, freq);
+		var next = array[0];
+		var minsleft = array[1];
+		var tr = $("<tr class='trains'>");
+		var tdname = $("<td>").html(name);
+		var tddest = $("<td>").html(dest);
+		var tdfreq = $("<td>").html(freq);
+		var tdnext = $("<td>").html(next);
+		var tdminsleft = $("<td>").html(minsleft);
+		var button = $("<button class='btn btn-primary btn-sm' id='" + key + "'>").text("Remove");
+		tr.append(tdname, tddest, tdfreq, tdnext, tdminsleft, button).attr("id", key);
+		console.log("From refresh");
+		$(".table").append(tr);
+	});
+}
+
+// check if user input follows HH:mm
 function checkinput(a) {
 	var index = a.indexOf(":");
 	if (index !== 2) {
@@ -49,17 +100,11 @@ function minutesaway(time, frequency) {
 	if (diff1 > 0) {
 		var remainder = diff % parseInt(freq);
 		var minutesleft = freq - remainder;
-		console.log(minutesleft);
 		var nexttrain = current.add(parseInt(minutesleft), "minutes").format("HH:mm");
-		console.log("diff1>0");
-	}
-	else if (diff1 = 0) {
-		var minutesleft = 0;
-		var nexttrain = current.format("hh:mm");
 	}
 	else {
 		var minutesleft = Math.abs(diff1);
-		var nexttrain = first.format("hh:mm");
+		var nexttrain = first.format("HH:mm");
 	}
 	
 	var array = [nexttrain, minutesleft]
@@ -67,6 +112,7 @@ function minutesaway(time, frequency) {
 }
 
 // main
+startTime();
 $("#submit").on("click", function(event) {
 	event.preventDefault();
 	var name = $("#train-name").val().trim();
@@ -76,7 +122,6 @@ $("#submit").on("click", function(event) {
 	var array = minutesaway(first, freq);
 	var next = array[0];
 	var minsleft = array[1];
-	console.log(next);
 	if (name === "" || dest === "" || first === "" || freq === "") {
 		alert("All fields are required!")
 	}
@@ -104,22 +149,30 @@ $("#submit").on("click", function(event) {
 });
 
 database.ref().on("child_added", function(child, preChildKey) {
-	console.log(child.val());
+	var key = child.key;
 	var child = child.val();
 	var name = child.name;
 	var dest = child.destination;
 	var freq = child.frequency;
 	var first = child.first;
 	var array = minutesaway(first, freq);
-	console.log(array);
 	var next = array[0];
 	var minsleft = array[1];
-	var tr = $("<tr>");
+	var tr = $("<tr class='trains'>");
 	var tdname = $("<td>").html(name);
 	var tddest = $("<td>").html(dest);
 	var tdfreq = $("<td>").html(freq);
 	var tdnext = $("<td>").html(next);
 	var tdminsleft = $("<td>").html(minsleft);
-	tr.append(tdname, tddest, tdfreq, tdnext, tdminsleft);
+	var button = $("<button class='btn btn-primary btn-sm' id='" + key + "'>").text("Remove");
+	tr.append(tdname, tddest, tdfreq, tdnext, tdminsleft, button).attr("id", key);
+	console.log("Not from refresh");
 	$(".table").append(tr);
 });
+
+timerrun();
+
+$(document).on("click", ".btn-sm", function() {
+	database.ref().child($(this).attr("id")).remove();
+	$("#" + $(this).attr("id")).remove();
+})
