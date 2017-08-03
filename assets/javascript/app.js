@@ -14,6 +14,7 @@ var database = firebase.database();
 // globals
 var num = "0123456789"
 var interval;
+var keys = [];
 
 // functions
 
@@ -42,28 +43,7 @@ function timerrun() {
 }
 
 function refresh() {
-	$(".trains").remove();
-	database.ref().on("child_added", function(child, preChildKey) {
-		var key = child.key;
-		var child = child.val();
-		var name = child.name;
-		var dest = child.destination;
-		var freq = child.frequency;
-		var first = child.first;
-		var array = minutesaway(first, freq);
-		var next = array[0];
-		var minsleft = array[1];
-		var tr = $("<tr class='trains'>");
-		var tdname = $("<td>").html(name);
-		var tddest = $("<td>").html(dest);
-		var tdfreq = $("<td>").html(freq);
-		var tdnext = $("<td>").html(next);
-		var tdminsleft = $("<td>").html(minsleft);
-		var button = $("<button class='btn btn-primary btn-sm' id='" + key + "'>").text("Remove");
-		tr.append(tdname, tddest, tdfreq, tdnext, tdminsleft, button).attr("id", key);
-		console.log("From refresh");
-		$(".table").append(tr);
-	});
+	location.reload();
 }
 
 // check if user input follows HH:mm
@@ -112,7 +92,10 @@ function minutesaway(time, frequency) {
 }
 
 // main
+
 startTime();
+
+
 $("#submit").on("click", function(event) {
 	event.preventDefault();
 	var name = $("#train-name").val().trim();
@@ -150,6 +133,7 @@ $("#submit").on("click", function(event) {
 
 database.ref().on("child_added", function(child, preChildKey) {
 	var key = child.key;
+	keys.push(key);
 	var child = child.val();
 	var name = child.name;
 	var dest = child.destination;
@@ -162,13 +146,14 @@ database.ref().on("child_added", function(child, preChildKey) {
 	var tdname = $("<td>").html(name);
 	var tddest = $("<td>").html(dest);
 	var tdfreq = $("<td>").html(freq);
-	var tdnext = $("<td>").html(next);
-	var tdminsleft = $("<td>").html(minsleft);
+	var tdnext = $("<td class='" + key + "'>").html(next);
+	var tdminsleft = $("<td class='" + key + "1'>").html(minsleft);
 	var button = $("<button class='btn btn-primary btn-sm' id='" + key + "'>").text("Remove");
 	tr.append(tdname, tddest, tdfreq, tdnext, tdminsleft, button).attr("id", key);
-	console.log("Not from refresh");
 	$(".table").append(tr);
 });
+
+// console.log(keys);
 
 timerrun();
 
