@@ -43,8 +43,17 @@ function timerrun() {
 }
 
 function refresh() {
-	location.reload();
-}
+	for (i = 0; i < keys.length; i++) {
+		database.ref("/" + keys[i]).on("value", function(snap) {
+			var snappy = snap.val();
+			var array = minutesaway(moment(snappy.first, "HH:mm"), snappy.frequency);
+			$("." + keys[i] + "1").html(array[1]);
+			database.ref("/" + keys[i]).update(
+				{minutesleft: array[1]}
+			);
+		});
+	};
+};
 
 // check if user input follows HH:mm
 function checkinput(a) {
@@ -66,7 +75,6 @@ function checkinput(a) {
 				return true;
 			}
 		}
-	
 	}
 }
 
@@ -94,6 +102,7 @@ function minutesaway(time, frequency) {
 // main
 
 startTime();
+timerrun();
 
 
 $("#submit").on("click", function(event) {
@@ -152,10 +161,6 @@ database.ref().on("child_added", function(child, preChildKey) {
 	tr.append(tdname, tddest, tdfreq, tdnext, tdminsleft, button).attr("id", key);
 	$(".table").append(tr);
 });
-
-// console.log(keys);
-
-timerrun();
 
 $(document).on("click", ".btn-sm", function() {
 	database.ref().child($(this).attr("id")).remove();
